@@ -81,3 +81,47 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = `payment.html?total=${total.toFixed(2)}`;
     });
 });
+
+// Payment addresses
+const paymentAddresses = {
+    BTC: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
+    USDT: 'TRC20: TXjR...LZJk',
+    LTC: 'LQ1q...Dh4V',
+    ETH: '0x742d...351a',
+    TRX: 'TRC20: TXjR...LZJk',
+};
+
+// Function to generate QR code
+function generateQRCode(crypto) {
+    const qrCodeElement = document.getElementById('qr-code');
+    qrCodeElement.innerHTML = ''; // Clear previous QR code
+    const qrCode = document.createElement('img');
+    qrCode.src = `https://api.qrserver.com/v1/create-qr-code /?data=${paymentAddresses[crypto]}&size=200x200`;
+    qrCodeElement.appendChild(qrCode);
+}
+
+// Function to start timer
+function startTimer() {
+    const timerElement = document.getElementById('timer');
+    let timeLeft = 300; // 5 minutes
+
+    setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = `Time left: ${Math.floor(timeLeft / 60)}:${timeLeft % 60 < 10 ? '0' : ''}${timeLeft % 60}`;
+    }, 1000);
+}
+
+// Event listener for cryptocurrency selection
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const total = urlParams.get('total');
+
+    document.getElementById('payment-total').textContent = `Total: $${total}`;
+
+    document.querySelectorAll('.crypto-icon').forEach((icon) => {
+        icon.addEventListener('click', () => {
+            generateQRCode(icon.dataset.crypto);
+            startTimer();
+        });
+    });
+});
