@@ -44,7 +44,6 @@ function updateCartDisplay() {
     });
 
     $('#cart-total').text(`Total: $${total.toFixed(2)}`);
-    return total; // Return the total for further use
 }
 
 // Function to add product to cart
@@ -55,24 +54,23 @@ function addToCart(productId) {
     if (cartItem) {
         cartItem.quantity++;
     } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({ ...product, quantity : 1 });
     }
 
-    update CartDisplay();
+    updateCartDisplay();
 }
 
-// Event listener for add to cart buttons
+// Event listener for adding products to cart
 $(document).ready(function() {
     displayProducts();
 
-    $('.add-to-cart').on('click', function() {
-        addToCart($(this).data('id'));
+    $(document).on('click', '.add-to-cart', function() {
+        const productId = $(this).data('id');
+        addToCart(productId);
     });
 
     $('#proceed-to-payment').on('click', function() {
-        const total = updateCartDisplay(); // Calculate and get the total
-
-        // Redirect to payment page with total amount
-        window.location.href = `payment.html?total=${total.toFixed(2)}`;
+        const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+        window.location.href = `payment.html?total=${total}`;
     });
 });
