@@ -1,47 +1,55 @@
-// Simple cart functionality
 let cart = [];
 
-document.querySelectorAll ('.add-to-cart').forEach(button => {
-    button.addEventListener('click', () => {
-        const product = button.parentElement;
-        const productName = product.querySelector('.card-title').innerText;
-        const productPrice = product.querySelector('.card-text').innerText;
+document.addEventListener("DOMContentLoaded", function() {
+    const cartSidebar = document.getElementById("cart-sidebar");
+    const cartItemsList = document.getElementById("cart-items");
+    const cartTotalElement = document.getElementById("cart-total");
+    const checkoutButton = document.getElementById("checkout-btn");
+    const toggleCartButton = document.getElementById("toggle-cart");
+    const cartCountElement = document.getElementById("cart-count");
 
-        cart.push({ name: productName, price: productPrice });
-        console.log(cart);
-    });
-});
-
-// Update cart items on cart page
-document.addEventListener('DOMContentLoaded', () => {
-    const cartItems = document.getElementById('cart-items');
-    cart.forEach(item => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${item.name}</td>
-            <td>${item.price}</td>
-            <td>1</td>
-            <td>${item.price}</td>
-            <td><button class="btn btn-danger remove-item">Remove</button></td>
-        `;
-        cartItems.appendChild(row);
+    toggleCartButton.addEventListener("click", function() {
+        cartSidebar.classList.toggle("open");
     });
 
-    // Update total
-    const total = cart.reduce((acc, item) => acc + parseFloat(item.price), 0);
-    document.getElementById('total').innerText = `$${total.toFixed(2)}`;
-});
+    document.querySelectorAll(".add-to-cart").forEach(function(button) {
+        button.addEventListener("click", function() {
+            const productId = button.dataset.productId;
+            const productPrice = button.dataset.productPrice;
 
-// Remove item from cart
-document.addEventListener('click', event => {
-    if (event.target.classList.contains('remove-item')) {
-        const row = event.target.parentElement.parentElement;
-        const productName = row.querySelector('td:first-child').innerText;
-        cart = cart.filter(item => item.name !== productName);
-        row.remove();
+            if (!cart.find(function(item) {
+                return item.id === productId;
+            })) {
+                cart.push({
+                    id: productId,
+                    price: productPrice,
+                    quantity: 1
+                });
+            } else {
+                const existingItem = cart.find(function(item) {
+                    return item.id === productId;
+                });
+                existingItem.quantity++;
+            }
 
-        // Update total
-        const total = cart.reduce((acc, item) => acc + parseFloat(item.price), 0);
-        document.getElementById('total').innerText = `$${total.toFixed(2)}`;
+            updateCart();
+        });
+    });
+
+    function updateCart() {
+        cartItemsList.innerHTML = "";
+        cart.forEach(function(item) {
+            const cartItemElement = document.createElement("li");
+            cartItemElement.className = "list-group-item";
+            cartItemElement.textContent = `Product ${item.id} - $${item.price} x ${item.quantity}`;
+            cartItemsList.appendChild(cartItemElement);
+        });
+
+        const total = cart.reduce(function(acc, item) {
+            return acc + (item.price * item.quantity);
+        }, 0);
+
+        cartTotalElement.textContent = `Total: $${total.toFixed(2)}`;
+        cartCountElement.textContent = `(${cart.length})`;
     }
 });
