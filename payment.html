@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cryptocurrency Payment</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
@@ -23,9 +22,9 @@
                     <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="BTC" width="50">
                     <p>BTC</p>
                 </div>
-                <div class="crypto-icon" data-crypto="USDT(TRC20)">
-                    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT(TRC20)" width="50">
-                    <p>USDT(TRC20)</p>
+                <div class="crypto-icon" data-crypto="USDT">
+                    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT" width="50">
+                    <p>USDT</p>
                 </div>
                 <div class="crypto-icon" data-crypto="LTC">
                     <img src="https://cryptologos.cc/logos/litecoin-ltc-logo.png" alt="LTC" width="50">
@@ -55,6 +54,52 @@
         <h3 id="payment-total" class="text-end">Total: $0.00</h3>
     </main>
 
-    <script src="script.js"></script>
+    <script>
+    // Payment addresses
+const paymentAddresses = {
+    BTC: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
+    USDT: 'Tether_Addr_Here',
+    LTC: 'LTC_Addr_Here',
+    ETH: '0x742d...351a',
+    TRX: 'TRC20_Addr_Here',
+};
+
+// Function to generate QR code
+function generateQRCode(crypto) {
+    $('#qr-code').empty(); // Clear previous QR code
+    const qrCode = `<img src="https://api.qrserver.com/v1/create-qr-code/?data=${paymentAddresses[crypto]}&size=200x200" alt="${crypto} QR Code">`;
+    $('#qr-code').append(qrCode);
+}
+
+// Function to start timer
+function startTimer() {
+    let timeLeft = 300; // 5 minutes
+
+    const timerInterval = setInterval(() => {
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            $('#timer').text('Payment time expired');
+            return;
+        }
+        
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        $('#timer').text(`Time left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
+        timeLeft--;
+    }, 1000);
+}
+
+// Event listener for cryptocurrency selection
+$(document).ready(function() {
+    const total = parseFloat(window.location.search.split('total=')[1]); // Get total from URL
+    $('#payment-total').text(`Total: $${total.toFixed(2)}`);
+
+    $('.crypto-icon').on('click', function() {
+        const crypto = $(this).data('crypto');
+        generateQRCode(crypto);
+        startTimer();
+    });
+});
+</script>
 </body>
 </html>
